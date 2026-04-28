@@ -1,6 +1,6 @@
 ---
 name: jujutsu
-description: "**REQUIRED** - ALways activate FIRST on any git/VCS operations (commit, status, branch, push, etc.), especially when HEAD is detached. If `.jj/` exists -> this is a Jujutsu (jj) repo - git commands will corrupt data. Essential git safety instructions inside. DO NOT IGNORE."
+description: "**REQUIRED** - Always activate FIRST on any git/VCS operations (commit, status, branch, push, etc.), especially when HEAD is detached. If `.jj/` exists -> this is a Jujutsu (jj) repo - raw git commands can corrupt data. Essential git safety instructions inside. DO NOT IGNORE."
 allowed-tools: Bash(jj *)
 ---
 
@@ -36,27 +36,37 @@ There is no need to run `jj commit`.
 
 ### Commits Are Mutable
 
-**CRITICAL**: Unlike git, jj commits can be freely modified. This enables a high-quality commit workflow:
-
-1. Before starting work, run `jj st`. If `@` already has changes, run `jj new` first. If `@` is empty, use it as-is.
-2. Describe your intended changes with `jj desc -m"Message"`
-3. Make your changes.
-4. Do NOT run `jj new` when finished — leave that to the next task's step 1.
-
-You may refine the commit using `jj squash` or `jj absorb` as needed
+**CRITICAL**: Unlike git, jj commits can be freely modified after creation. You can update descriptions, squash changes, rebase, and absorb — all without creating new commits. See "Essential Workflow" below for the recommended working pattern.
 
 ### Change IDs vs Commit IDs
 
-- **Change ID**: A stable identifier (like `tqpwlqmp`) that persists when a commit is rewritten
+- **Change ID**: A stable identifier (like `tqpwlqmp`) that persists when a commit is rewritten — prefer these when referencing commits
 - **Commit ID**: A content hash (like `3ccf7581`) that changes when commit content changes
 
-Prefer using Change IDs when referencing commits in commands.
+### Revsets
+
+jj uses a revset language to select commits in commands. Common revsets:
+
+- `@` — the working copy commit
+- `@-` — the parent of the working copy
+- `::@` — all ancestors of `@`
+- `@::` — all descendants of `@`
+- `trunk()..@` — commits between trunk and `@` (your branch)
+- `bookmarks()` — all commits with bookmarks
+
+Use revsets with `-r` flags: `jj log -r 'trunk()..@'`
 
 ## Essential Workflow
 
 ### Starting Work: Describe First, Then Code
 
 **Always create your commit message before writing code:**
+
+Validate that you're on a blank revision with `jj st`. If you are not, you should type:
+
+```bash
+jj new
+```
 
 ```bash
 # First, describe what you intend to do
@@ -104,7 +114,7 @@ jj diff
 jj new
 
 # Create new commit with message
-jj new && jj desc -m "Commit message"
+jj new -m "Commit message"
 
 # Edit an existing commit (working copy becomes that commit)
 jj edit <change-id>
@@ -160,6 +170,24 @@ jj undo
 
 This reverts the repository to its state before the previous command. Useful for recovering from mistakes like accidental `abandon`, `squash`, or `rebase`.
 
+### Rebasing Commits
+
+Move commits to a different parent:
+
+```bash
+# Rebase current branch onto a destination
+jj rebase -d <destination>
+
+# Rebase a specific revision (without descendants) onto a destination
+jj rebase -r <change-id> -d <destination>
+
+# Rebase a revision and all its descendants
+jj rebase -s <change-id> -d <destination>
+
+# Rebase onto trunk (common: update your branch to latest main)
+jj rebase -d main
+```
+
 ### Restoring Files
 
 Discard changes to specific files or restore files from another revision:
@@ -205,9 +233,26 @@ jj git clone <url>
 jj git init --colocate
 ```
 
-### Switching Between jj and git (Colocated Repos)
+### Fetching Remote Changes
 
-In a colocated repository (where both `.jj/` and `.git/` exist), you can use both jj and git commands. However, there are important considerations:
+```bash
+# Fetch all branches from the default remote
+jj git fetch
+
+# Fetch from a specific remote
+jj git fetch --remote <remote-name>
+
+# Fetch specific branches
+jj git fetch -b <branch-name>
+```
+
+After fetching, rebase your work onto the updated trunk: `jj rebase -d main`
+
+### Switching Between jj and git (Colocated Repos Only)
+
+**This section only applies to colocated repos** (where both `.jj/` and `.git/` exist). In non-colocated repos, do not use git commands — they will corrupt jj state.
+
+In a colocated repository, you can use both jj and git commands with care:
 
 **Switching to git mode** (e.g., for merge workflows):
 ```bash
@@ -279,11 +324,11 @@ jj st
 
 ## Preserving Commit Quality
 
-**IMPORTANT**: Because commits are mutable, always refine them:
+**IMPORTANT**: Because commits are mutable, always refine them before considering work done:
 
 1. **Review your commit**: `jj show @` or `jj diff`
 2. **Is it atomic?** One logical change per commit
-3. **Is the message clear?** Use imperative verb phrase in sentence case format with no full stop: "Verb object"
+3. **Is the message clear?** Use imperative verb phrase in sentence case format with no full stop: e.g. "Add login endpoint", "Fix null pointer in payment processor", "Remove deprecated API endpoints"
 4. **Are there unrelated changes?** Use `jj restore` to move changes out, then create separate commits
 5. **Should changes be elsewhere?** Use `jj squash` or `jj absorb`
 
@@ -295,14 +340,16 @@ jj st
 | View status | `jj st` |
 | View log | `jj log` |
 | View diff | `jj diff` |
-| New commit | `jj st` then `jj new` only if `@` has changes, then `jj desc -m "message"` |
+| New commit | `jj new -m "message"` (use `jj st` first; skip if `@` is empty) |
 | Edit commit | `jj edit <id>` |
 | Squash to parent | `jj squash` |
 | Auto-distribute | `jj absorb` |
+| Rebase | `jj rebase -d <destination>` |
 | Abandon commit | `jj abandon <id>` |
 | Undo last operation | `jj undo` |
 | Restore files | `jj restore [paths]` |
 | Create bookmark | `jj bookmark create <name>` |
+| Fetch remote | `jj git fetch` |
 | Push bookmark | `jj git push -b <name>` |
 
 ## Best Practices Summary
