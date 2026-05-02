@@ -103,9 +103,11 @@ jj log -p
 # View specific commit
 jj show <change-id>
 
-# View diff of working copy
-jj diff
+# View diff of working copy (use --git for familiar +/- format)
+jj diff --git
 ```
+
+**IMPORTANT: `jj diff` output format**: The default `jj diff` output uses a side-by-side line number format (e.g. `26   26:`) that looks very different from git's `+`/`-` prefix format. This is **normal and correct** — it is NOT corrupted or showing stale content. However, to avoid confusion, **always use `jj diff --git`** to get standard unified diff format with `+`/`-` lines.
 
 ### Moving Between Commits
 
@@ -326,7 +328,7 @@ jj st
 
 **IMPORTANT**: Because commits are mutable, always refine them before considering work done:
 
-1. **Review your commit**: `jj show @` or `jj diff`
+1. **Review your commit**: `jj show @` or `jj diff --git`
 2. **Is it atomic?** One logical change per commit
 3. **Is the message clear?** Use imperative verb phrase in sentence case format with no full stop: e.g. "Add login endpoint", "Fix null pointer in payment processor", "Remove deprecated API endpoints"
 4. **Are there unrelated changes?** Use `jj restore` to move changes out, then create separate commits
@@ -339,7 +341,7 @@ jj st
 | Describe commit | `jj desc -m "message"` |
 | View status | `jj st` |
 | View log | `jj log` |
-| View diff | `jj diff` |
+| View diff | `jj diff --git` |
 | New commit | `jj new -m "message"` (use `jj st` first; skip if `@` is empty) |
 | Edit commit | `jj edit <id>` |
 | Squash to parent | `jj squash` |
