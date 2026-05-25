@@ -1,67 +1,89 @@
-# jj VCS Agent Skill
+# jujutsu-skill
 
-An Agent Skill that helps AI coding agents work with the Jujutsu (jj) version control system.
+A plugin that teaches AI coding agents to work with the [Jujutsu (jj)](https://github.com/jj-vcs/jj) version control system. Ships as both a **Claude Code plugin** and a **Codex plugin**, and the underlying skill works standalone too.
 
 ## Overview
 
-This repository provides an Agent Skill for Claude Code and other compatible AI agents to effectively use the Jujutsu VCS. The skill teaches agents the proper workflow and commands for creating atomic, well-documented commits using jj.
-
-## Compatibility
+This repository packages an Agent Skill that walks an agent through the proper workflow and commands for creating atomic, well-documented commits using jj. The skill teaches the describe-first workflow, atomic commit hygiene, and how to refine history with `squash`, `split`, and `absorb`.
 
 **Tested with:** jj v0.37.0
 
-This skill is designed for jj v0.37.0 and may work with other versions, though compatibility is not guaranteed.
-
-## What is Jujutsu?
-
-Jujutsu (jj) is a Git-compatible version control system that offers several advantages:
-
-- **Working copy as a commit**: The working directory is always a commit, automatically snapshotting changes
-- **No staging area**: Changes are moved directly between commits using `squash` and `split`
-- **Automatic rebasing**: Descendant commits are automatically rebased when parent commits change
-- **Mutable commits**: Commits can be freely edited, split, and squashed
-- **Change IDs**: Stable identifiers that persist across commit rewrites
-- **Conflict handling**: Conflicts can be committed and resolved later
-
-## Installation
-
-If you use [just](just.systems), you can run:
+## Repository layout
 
 ```
-just install
+.
+├── .claude-plugin/plugin.json   # Claude Code plugin manifest
+├── .codex-plugin/plugin.json    # Codex plugin manifest
+├── skills/
+│   └── jujutsu/
+│       └── SKILL.md             # The shared skill content
+├── justfile
+├── LICENSE
+└── README.md
 ```
 
-Copy the `skill/` directory into your project's `.claude/skills/` directory:
+Both plugin manifests point at the same `skills/jujutsu/SKILL.md`, so there is one source of truth for the skill instructions.
+
+## Why Jujutsu?
+
+Jujutsu is a Git-compatible VCS with several advantages worth teaching an agent about:
+
+- **Working copy is a commit**: changes are auto-snapshotted, no staging area
+- **Mutable commits**: edit, split, squash freely
+- **Automatic rebasing**: descendants follow when ancestors change
+- **Stable change IDs**: persist across rewrites
+- **Conflict commits**: resolve conflicts later, not now
+
+## Install as a Claude Code plugin
+
+Local development (no install, loads the plugin for one session):
 
 ```bash
-cp -r skill/ /path/to/your/project/.claude/skills/jj-vcs/
+claude --plugin-dir /path/to/jujutsu-skill
 ```
 
-Or install it as a global skill:
+Persistent install (copies the plugin into `~/.claude/plugins/`):
 
 ```bash
-cp -r skill/ ~/.claude/skills/jj-vcs/
+just install-claude
 ```
 
-## Skill Contents
+Or, distribute through a [plugin marketplace](https://code.claude.com/docs/en/plugin-marketplaces) and install with `/plugin install jujutsu-skill@<your-marketplace>`. Full plugin docs: <https://code.claude.com/docs/en/plugins>.
 
-```
-skill/
-└── SKILL.md    # Main skill file with jj workflow instructions
+## Install as a Codex plugin
+
+Persistent install (copies the plugin into `~/.codex/plugins/`):
+
+```bash
+just install-codex
 ```
 
-## Key Workflow Philosophy
+Or reference the plugin from a marketplace file at `~/.agents/plugins/marketplace.json` (personal) or `<repo>/.agents/plugins/marketplace.json` (repo-scoped) with a relative path entry. See the [Codex plugin docs](https://developers.openai.com/codex/plugins/build) for current marketplace schema details.
+
+## Install just the skill (legacy)
+
+If your agent only supports plain skills (not plugins), copy the skill directory directly:
+
+```bash
+just install-skill
+# or:
+cp -r ./skills/jujutsu ~/.claude/skills/jujutsu
+```
+
+## Skill philosophy
 
 The skill emphasizes:
 
-1. **Describe-first commits**: Use `jj desc -m "message"` before making changes
-2. **Atomic commits**: Each commit should represent one logical change
-3. **Commit quality preservation**: Leverage jj's mutability to refine commits
-4. **Clean history**: Use `squash`, `split`, and `absorb` to maintain a readable history
+1. **Describe-first commits**: `jj desc -m "message"` before making changes
+2. **Atomic commits**: one logical change per commit
+3. **Commit quality preservation**: leverage jj's mutability to refine
+4. **Clean history**: use `squash`, `split`, and `absorb` to keep history readable
+
+See [`skills/jujutsu/SKILL.md`](skills/jujutsu/SKILL.md) for the full instructions the agent will follow.
 
 ## Contributing
 
-Contributions are welcome. Please ensure any changes are compatible with jj v0.37.0.
+Contributions welcome. Please keep changes compatible with jj v0.37.0.
 
 ## License
 

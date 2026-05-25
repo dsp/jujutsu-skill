@@ -1,0 +1,11 @@
+{
+  "name": "jujutsu-skill",
+  "version": "0.1.0",
+  "description": "Teach Claude Code to work with the Jujutsu (jj) version control system.",
+  "author": {
+    "name": "Danver Braganza"
+  },
+  "homepage": "https://github.com/danverbraganza/jujutsu-skill",
+  "repository": "https://github.com/danverbraganza/jujutsu-skill",
+  "license": "MIT"
+}
