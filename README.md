@@ -4,7 +4,7 @@ A plugin that teaches AI coding agents to work with the [Jujutsu (jj)](https://g
 
 ## Overview
 
-This repository packages an Agent Skill that walks an agent through the proper workflow and commands for creating atomic, well-documented commits using jj. The skill teaches the describe-first workflow, atomic commit hygiene, and how to refine history with `squash`, `split`, and `absorb`.
+This repository packages an Agent Skill that walks an agent through the proper workflow and commands for creating atomic, well-documented commits using jj. The skill teaches the describe-first workflow, atomic commit hygiene, and how to refine history with `squash`, `split`, and `absorb`. The skill is based on [danverbraganza/jujutsu-skill](https://github.com/danverbraganza/jujutsu-skill)
 
 **Tested with:** jj v0.37.0
 
@@ -17,22 +17,11 @@ This repository packages an Agent Skill that walks an agent through the proper w
 ├── skills/
 │   └── jujutsu/
 │       └── SKILL.md             # The shared skill content
-├── justfile
 ├── LICENSE
 └── README.md
 ```
 
 Both plugin manifests point at the same `skills/jujutsu/SKILL.md`, so there is one source of truth for the skill instructions.
-
-## Why Jujutsu?
-
-Jujutsu is a Git-compatible VCS with several advantages worth teaching an agent about:
-
-- **Working copy is a commit**: changes are auto-snapshotted, no staging area
-- **Mutable commits**: edit, split, squash freely
-- **Automatic rebasing**: descendants follow when ancestors change
-- **Stable change IDs**: persist across rewrites
-- **Conflict commits**: resolve conflicts later, not now
 
 ## Install as a Claude Code plugin
 
@@ -44,9 +33,6 @@ claude --plugin-dir /path/to/jujutsu-skill
 
 Persistent install (copies the plugin into `~/.claude/plugins/`):
 
-```bash
-just install-claude
-```
 
 Or, distribute through a [plugin marketplace](https://code.claude.com/docs/en/plugin-marketplaces) and install with `/plugin install jujutsu-skill@<your-marketplace>`. Full plugin docs: <https://code.claude.com/docs/en/plugins>.
 
@@ -54,21 +40,7 @@ Or, distribute through a [plugin marketplace](https://code.claude.com/docs/en/pl
 
 Persistent install (copies the plugin into `~/.codex/plugins/`):
 
-```bash
-just install-codex
-```
-
 Or reference the plugin from a marketplace file at `~/.agents/plugins/marketplace.json` (personal) or `<repo>/.agents/plugins/marketplace.json` (repo-scoped) with a relative path entry. See the [Codex plugin docs](https://developers.openai.com/codex/plugins/build) for current marketplace schema details.
-
-## Install just the skill (legacy)
-
-If your agent only supports plain skills (not plugins), copy the skill directory directly:
-
-```bash
-just install-skill
-# or:
-cp -r ./skills/jujutsu ~/.claude/skills/jujutsu
-```
 
 ## Skill philosophy
 
