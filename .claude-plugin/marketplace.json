@@ -1,0 +1,13 @@
+{
+  "name": "jujutsu-skill",
+  "owner": {
+    "name": "Danver Braganza"
+  },
+  "plugins": [
+    {
+      "name": "jujutsu-skill",
+      "source": "./",
+      "description": "Teach Claude Code to work with the Jujutsu (jj) version control system."
+    }
+  ]
+}
